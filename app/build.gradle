@@ -10,13 +10,20 @@ android {
         applicationId "app.udderance"
         minSdk 21
         targetSdk 34
-        versionCode 20250627
-        versionName "20250627"
+        versionCode 202506270
+        versionName "202506270"
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            minifyEnabled true
+            zipAlignEnabled true
+        }
         release {
-            minifyEnabled false
+            shrinkResources true
+            minifyEnabled true
+            zipAlignEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -30,6 +37,5 @@ android {
 }
 
 dependencies {
-
     implementation libs.androidx.webkit
 }

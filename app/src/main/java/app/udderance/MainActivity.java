@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -32,6 +33,8 @@ import android.webkit.WebView;
 
 import androidx.webkit.WebViewAssetLoader;
 import androidx.webkit.WebViewClientCompat;
+
+import java.net.URLDecoder;
 
 public class MainActivity extends Activity {
 
@@ -62,16 +65,24 @@ public class MainActivity extends Activity {
         mWebView.setWebViewClient(new WebViewClientCompat() {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                Log.d(TAG, "Trying to load " + request.getUrl());
-                if (request.getUrl().toString().startsWith("https://appassets.androidplatform.net/assets/")) {
-                    String baseUrl = "https://appassets.androidplatform.net/assets/";
-                    String path = request.getUrl().toString().split("https://appassets.androidplatform.net/assets/")[1];
+                String baseUrl = "https://appassets.androidplatform.net/assets/";
+                String requestUrl = request.getUrl().toString();
+
+                //Log.d(TAG, "Trying to load " + request.getUrl());
+                if (requestUrl.startsWith(baseUrl + "speak")) {
+                    String textToSpeak = requestUrl.split("speak\\?text=")[1];
+                    textToSpeak = URLDecoder.decode(textToSpeak);
+                    //Log.d(TAG, "Attempting to speak and cancelling request");
+                    speakText(textToSpeak);
+                    return new WebResourceResponse("text/javascript", "UTF-8", null); //cancel the request
+                } else if (requestUrl.startsWith(baseUrl)) {
+                    String path = requestUrl.split(baseUrl)[1];
                     String joiner = "";
                     if (!path.contains("images") && !path.contains("pages")) {
                         joiner = "assets/";
                     }
                     String newUrl = baseUrl + joiner + path;
-                    Log.d(TAG, "rewriting to " + newUrl);
+                    //Log.d(TAG, "rewriting to " + newUrl);
                     return assetLoader.shouldInterceptRequest(Uri.parse(newUrl));
                 }
                 return assetLoader.shouldInterceptRequest(request.getUrl());
@@ -101,6 +112,24 @@ public class MainActivity extends Activity {
         mWebSettings.setSaveFormData(false);
         //Load the AAC
         mWebView.loadUrl("https://appassets.androidplatform.net/assets/pages/aac.html");
+    }
+
+    private TextToSpeech ttsInstance = null;
+    private int ttsCounter = 0;
+
+    private void speakText(String textToSpeak) {
+        if (ttsInstance == null) {
+            ttsInstance = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                @Override
+                public void onInit(int status) {
+                    //do nothing
+                }
+            });
+            Log.d(TAG, "Initialized TTS provider");
+        }
+        //Log.d(TAG, "Speaking text (ID: " + ttsCounter + "): " + textToSpeak);
+        ttsInstance.speak(textToSpeak, TextToSpeech.QUEUE_ADD, null, String.valueOf(ttsCounter));
+        ttsCounter++;
     }
 
     @Override

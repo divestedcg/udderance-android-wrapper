@@ -9,9 +9,9 @@ android {
     defaultConfig {
         applicationId "app.udderance"
         minSdk 21
-        targetSdk 36
-        versionCode 20250626
-        versionName "20250626"
+        targetSdk 34
+        versionCode 20250627
+        versionName "20250627"
     }
 
     buildTypes {

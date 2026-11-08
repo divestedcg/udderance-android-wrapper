@@ -10,8 +10,8 @@ android {
         applicationId "app.udderance"
         minSdk 21
         targetSdk 34
-        versionCode 202506270
-        versionName "202506270"
+        versionCode 2026110800
+        versionName "2026110800"
     }
 
     buildTypes {
